@@ -1,0 +1,7 @@
+enterprise/samplemicroerviceapp/config/CrossOriginResourceSharingFilter.class
+enterprise/samplemicroerviceapp/service/ExampleService.class
+enterprise/samplemicroerviceapp/config/Producers.class
+enterprise/samplemicroerviceapp/service/HealthCheckService.class
+client/SampleClient.class
+servlets/SampleClientServlet.class
+enterprise/samplemicroerviceapp/config/BootStrap.class

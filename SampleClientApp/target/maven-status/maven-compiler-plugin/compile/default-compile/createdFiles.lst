@@ -1,0 +1,7 @@
+microservices/sampleclientapp/config/CrossOriginResourceSharingFilter.class
+microservices/sampleclientapp/service/HealthCheckService.class
+client/SampleClient.class
+microservices/sampleclientapp/service/ExampleService.class
+servlets/SampleClientServlet.class
+microservices/sampleclientapp/config/BootStrap.class
+microservices/sampleclientapp/config/Producers.class
