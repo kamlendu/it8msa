@@ -1,0 +1,160 @@
+Securing Application with JWT
+
+-- Generating jwt token by a ready application by airhacks
+we have jwtenizr.jar
+execute the jar file as 
+java -jar JWTenizer.jar
+This will generate following files
+- `jwtenizr-config.json` with public, private key and target folder of `microprofile-config.properties`
+- `jwt-token.json`: with [Minimum MP-JWT Required Claims](https://www.eclipse.org/community/eclipse_newsletter/2017/september/article2.php), a sample principal and a few groups
+- `token.jwt`: with information loaded from: `jwt-token.json` and can be used as input for automated  system tests
+- `microprofile-config.properties` comprising the public key an the issuer: copy to your `WAR/src/main/resources/META-INF` 
+- `curl` command: with `Authorization` header and included token:
+
+microprofile-config.properties will have following content
+mp.jwt.verify.issuer=airhacks
+mp.jwt.verify.publickey=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo6K9nNVcU4kTsW0IXP/xrJVyQe4AwB2zzLNvYwfjo8Tt6Y5NpPIQOna7cRFQ4aI7xDKkVEYPU3XIN/AlVR2JfNvdbWnEJlFxv0oUJDJFgqHtcZph9PTwZSqmNqlpjrb+b3CKIDBcMtq8djSrSUBqCRasL+Z4yRr/4KfbTWxKx8sXMAFyEzF4BZ/7/XBnK0kQbvlrsT0kKYd7VPngQ7P3aaV/a+w1VkX2z/oPQKY2zMtNHe0evVYfoeK9l/tdq9WRvwgFQ7QlUELGwx7+eDwuXlMLg3xWnxWieiHlZknoMEH9ijg41QKusktZoVcOKgrv6EcQ67lik59ptwHGfVVa6wIDAQAB
+
+just copy and paste it into META-INF/microprofile-config.properties file in resource application
+
+A - In resource Application
+
+1. In the resource application Look for BootStrap or main class extending Application
+On the top of the class write
+@LoginConfig(authMethod = "MP-JWT")
+@DeclareRoles({"Admin","Supervisor"})
+@ApplicationPath("rest")
+public class BootStrap extends javax.ws.rs.core.Application {
+}
+
+2. In ExampleService  which is the resource to be invoked
+
+use RolesAllowed  annotation as follows
+
+    @GET
+    @RolesAllowed("Admin")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get() {
+        return "Hello, world! of Micro Profile from Trial App";
+    }
+    
+    
+3. In microprofile-config.properties file
+have two more entries
+mp.jwt.verify.issuer=
+mp.jwt.verify.publickey=
+
+Based on your jwt you need to populate issuer and public key for which the token is generated. JWT is already encrypted by private key
+
+
+
+B- In client application 
+
+Modify the client interface in following way
+
+@RegisterRestClient(configKey = "myclient1")
+public interface MyRestClient {
+    @GET
+    @ClientHeaderParam(name="authorization", value="{generateJWTToken}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get();
+    
+    default String generateJWTToken()
+    {
+        Config config = ConfigProvider.getConfig();
+         String token ="Bearer "+config.getValue("jwt-string", String.class) ;
+         System.out.println("Token = "+token);
+         return token;
+    }
+}
+
+
+
+In META-INF/microprofile-config.properties file
+have following entries
+jwt-string = 
+
+
+while calling jwt-string will be picked up by generateJWTToken method with 
+String token ="Bearer "+config.getValue("jwt-string", String.class) ;
+
+Based on your jwt you need to populate jwt-string with for which the token is generated
+
+Now In the invoke servlet when client will be injected and method will be called then jwt-string will go in client header which target application will recognize and get the Roles from token
+
+
+
+
+2. Now Lets create our own tokens jwt tokens, public key and private key
+
+Before doing anything we need to do some modification in resource application and client application
+
+In resource application
+
+
+3. Using your own key pair and code to generate jwt, encrypt it with private key and then using public key at the resource application
+
+creating own public and private keys
+First, it is necessary to generate a base key to be signed:
+
+> openssl genrsa -out baseKey.pem
+
+
+From the base key generate the PKCS#8 private key:
+
+> openssl pkcs8 -topk8 -inform PEM -in baseKey.pem -out privateKey.pem -nocrypt
+
+
+Using the private key you could generate a public (and distributable) key
+
+> openssl rsa -in baseKey.pem -pubout -outform PEM -out publicKey.pem
+
+At present they are stored in keys folder.
+
+We gave our own classes in utilities folder in token packeage with two classes GenerateToken.java and MPJWTToken.java
+To use these classes add following dependency in pom.xml
+
+   <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-auth-jwt</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+    
+
+In GenerateToken class we have a static method generateToken() to be called. 
+
+In GenerateToken instance of MPJWTToken is created and using using this instance populate your credentials like principal and groups.
+
+// GenerateToken is a custom class written in the current application with a static method generateJWT. It uses private key to encript 	
+//	the token. The private key with name privateKey.pem is stored in src/main/resources folder of client and resource application respectively
+         
+       
+your rest client will be as follows
+
+@RegisterRestClient(configKey = "myclient1")
+public interface MyRestClient {
+     @GET
+      @ClientHeaderParam(name="authorization", value="{generateJWTToken}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get();
+    
+    default String generateJWTToken()
+    {
+        Config config = ConfigProvider.getConfig();
+      
+       // Token dynamically generated
+         String token ="Bearer "+ GenerateToken.generateJWT();
+         System.out.println("Token = "+token);
+         return token;
+    }
+}
+       
+    
+    5. In your resource application create payara-mp-jwt.properties file in other resources folder and in that file populate as follow
+    accepted.issuer=https://server.example.com // This must be same as issuer mentioned in GenerateToken class
+    
+    put your public key publicKey.pem also in the same folder.
+    
+    Clean and build both the application
+    run both the applications
+    
