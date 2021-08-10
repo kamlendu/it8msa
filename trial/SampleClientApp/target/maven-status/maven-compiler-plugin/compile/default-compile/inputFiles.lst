@@ -1,0 +1,10 @@
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/token/MPJWTToken.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/token/GenerateToken.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/service/ExampleService.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/client/SampleClient.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/config/BootStrap.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/config/Producers.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/config/CrossOriginResourceSharingFilter.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/service/HealthCheckService.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/microservices/sampleclientapp/service/package-info.java
+/root/Desktop/microservices/it8msa2021/trial/SampleClientApp/src/main/java/servlets/SampleClientServlet.java

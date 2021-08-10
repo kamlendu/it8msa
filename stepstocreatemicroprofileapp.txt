@@ -1,0 +1,87 @@
+Steps of First Micro profile App
+
+1. create new project. Choose Java with Maven archetype. In archetype search Archetype using word like microprofile . You will get many archetypes. Choose jakartaaee8-microprofile-archetype. Press OK
+
+2. In pom.xml, in properties tag change if you are using java ee 8 	<maven.compiler.source>11</maven.compiler.source>
+        								<maven.compiler.target>11</maven.compiler.target>
+        		
+        		to
+        			
+        								 <maven.compiler.source>8</maven.compiler.source>
+       		 						<maven.compiler.target>8</maven.compiler.target>
+       		 						
+       		 						change microprofile verion to 3.1 if its is 2.x
+       		 						
+       		 					
+       		 						
+       		 						
+3. In Your ExampleService make following changes
+
+@Path("/example")
+public class ExampleService {
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get() {
+        return "Hello, world! of Micro Profile from Trial App";
+    }
+    
+4. Write the client interface . Make package client
+create a simple Java Interface Named ExampleClient
+
+@RegisterRestClient(baseUri = "http://localhost:8080/TrialMicroApp/rest/example")
+public interface ExampleClient {
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get();
+}
+
+OR
+
+Another way of doing the same 
+
+4. Write the client interface . Make package client
+create a simple Java Interface Named ExampleClient
+
+@RegisterRestClient(configKey=myclient")
+public interface ExampleClient {
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get();
+}
+=========================================================================
+Now In your project go to the node "Other Resources"
+- under this in node "src/main/resources" create a Folder META-INF
+- in META-INF create a property file microprofile-config.properties
+in that file write
+
+myclient/mp-rest/url= http://localhost:8080/TrialMicroApp/rest/example
+
+where myclient is the config key of rest client url is the url of the target service
+
+=============================================================================
+5. How to invoke the client with a servlet in the same application
+
+create a simple servlet
+In the servlet, Inject the client as follows
+
+  @Inject @RestClient ExampleClient ex;
+
+Now using ex you can call all the methods listed in the client.
+like 
+    out.println("<h1> Response : " + ex.get() + "</h1>");
+        
+
+
+
+Using Client in Other Microprofile App
+
+1. create Rest client in the same manner as above
+2. just point out the location of the target service you want to invoke with either baseURL or configKey using properties file as mentioned above.
+3. Now Inject the client anywhere with @Inject @RestClient ExampleClient ex; and use ex to execute all the methods of ExampleService
+
+
+6. Running micro services app on payara micro with any port (don't use 8080 as payara community server is already running on it.)
+
+java -jar payara-micro-5.194.jar --deploy <directory-path>/SampleClientApp.war --port 8087
+
