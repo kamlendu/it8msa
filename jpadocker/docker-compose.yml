@@ -1,0 +1,29 @@
+version: '2.3'
+services:
+  jpadocker:
+    container_name: jpadocker
+    image: jpadocker:latest
+    ports:
+     - 9090:8080  
+    networks: 
+        - inetwork
+ 
+  database:
+    container_name: database
+    image: mysql/mysql-server:5.7
+    volumes:
+     - data:/var/lib/mysql
+    ports:
+     - "3406:3306"
+    networks: 
+        - inetwork
+
+volumes: 
+  data:
+    driver: local
+    name: newvolume
+
+networks: 
+  inetwork:
+    driver: bridge
+    name: mynet

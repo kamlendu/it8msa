@@ -1,0 +1,53 @@
+Dockerizing payara micro with simple java web applications 
+
+
+1. Pull an image for payara micro drom docker hub
+
+	# docker pull payara/micro
+
+2. Create a Dockerfile in any folder for putting your application in the image and creating a new image using base image payara/micro 
+
+==================== Dockerfile======================================================
+
+# Using the Payara Micro 5 snapshot build.
+
+FROM payara/micro
+
+COPY TestApp.war $DEPLOY_DIR
+
+===============================================================================================
+
+
+4. navigate into the folder on command prompt and create your own docker image named jpa payara
+
+	# docker build -t  myapp . // the (.)  is important it automatically executes Dockerfile in that folder taling all the resources 							in that folder
+5.  
+	# docker run -p 9090:8080  --name myapp -d   myapp
+
+6. now just go to browser and browser using http://localhost:9090/TestApp and then http://localhost:9090/TestApp/TestServlet
+
+7. Voila !! It works. 
+
+
+======================================= JAVA WEB DOCKER COMPLETES=========================
+
+pushing image into dockerhub
+
+1. # docker login
+
+2. # docker tag myapp kamlendupandey/myapp
+
+3. # docker push kamlendupandey/myapp
+
+
+
+
+
+
+
+
+
+
+
+
+

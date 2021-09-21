@@ -1,0 +1,97 @@
+Dockerizing payara micro with some java web applications which uses database from dockerized mysql running on different containers
+
+
+1. Pull an image for payara micro drom docker hub
+
+	# docker pull payara/micro
+
+2. Create a Dockerfile in any folder for putting your application in the image and creating a new image using base image payara/micro 
+
+==================== Dockerfile======================================================
+
+# Using the Payara Micro 5 snapshot build.
+
+FROM payara/micro
+USER root
+
+# create a custom config folder
+RUN mkdir ${PAYARA_HOME}/config
+
+# copy domain.xml into config to read your data sources and jndi
+COPY domain.xml ${PAYARA_HOME}/config/
+
+# copy mysql pure java driver into config directory
+COPY mysql-connector-java-5.1.47-bin.jar ${PAYARA_HOME}/config
+
+RUN chown -R payara:payara ${PAYARA_HOME}/config
+
+USER payara
+
+WORKDIR ${PAYARA_HOME}
+
+# Deploy artefacts
+# copy your war file into deploy directory of payara
+COPY TestJPAServlet.war $DEPLOY_DIR
+
+# some commands to be executed when container runs.. This will help your application getting all resources
+
+CMD ["--addLibs","/opt/payara/config/mysql-connector-java-5.1.47-bin.jar", "--deploymentDir", "/opt/payara/deployments", "--rootDir", "/opt/payara/config","--domainConfig", "/opt/payara/config/domain.xml"]]
+
+===============================================================================================
+
+
+
+Alternative :
+If we want to run project directly in payara-micro without docker
+java -jar payara-micro-5.194.jar --deploy TestJPAServlet.war --port 8085 --addlibs mysql-connector-java-5.1.47-bin.jar --domainconfig domain.xml
+
+
+
+
+
+3. Put following files in the same folder where docker file resides
+
+	1. your war file  2. domain.xml   3. mysql-connector-java-5.1.47-bin.jar
+
+4. navigate into the folder on command prompt and create your own docker image named jpadocker
+
+	# docker build -t  jpadocker . // the (.)  is important it automatically executes Dockerfile in that folder taling all the resources 							in that folder
+
+
+5.  This command is very important . It establishes a link between your new jpadocker container and database container of mysql
+    The application in jpadocker can use the link name database to access mysql docker instance (mysql docker instance is run with name     
+    database)
+    
+    	# docker run --name=database -p 3406:3306 --network mynet -v /var/data:/var/lib/mysql -d mysql/mysql-server:5.7
+	
+	# docker run -p 9090:8080  --name jpadocker --network mynet -d jpadocker
+
+6. now just go to browser and browse using http://localhost:9090/TestJPAServlet and then http://localhost:9090/TestJPAServlet/JPAServlet
+
+7. Voila !! It works. This completes how to deploy a Java Web application which uses JPA, EJB and database on mysql on docker.
+
+
+======================================= JAVA WEB DOCKER COMPLETES=========================
+
+pushing image into dockerhub
+
+1. # docker login
+
+1. # docker commit 26e395f98b3e jpadocker // 26e395f98b3e is container id you can view it by command # docker ps
+
+2. # docker tag jpadocker kamlendupandey/jpadocker
+
+3. # docker push kamlendupandey/jpadocker
+
+
+
+
+
+
+
+
+
+
+
+
+

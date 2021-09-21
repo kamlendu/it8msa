@@ -20,7 +20,7 @@ import token.GenerateToken;
  */
 
 //@RegisterRestClient(configKey = "rclient")
-@RegisterRestClient(baseUri = "http://localhost:8084/SampleMicroerviceApp/rest/example")
+@RegisterRestClient(baseUri = "http://msa1:8080/SampleMicroerviceApp/rest/example")
 public interface SampleClient {
     
     @ClientHeaderParam(name = "authorization", value = "{generateJWTToken}")
